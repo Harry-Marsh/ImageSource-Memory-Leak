@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSource Memory Leak", "ImageSource Memory Leak\ImageSource Memory Leak.csproj", "{33DF93DE-C5B1-46E7-A65F-A53D991F348A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33DF93DE-C5B1-46E7-A65F-A53D991F348A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A0F9F96-8BE9-4878-9440-AD7E096CBBEF}
+	EndGlobalSection
+EndGlobal
