@@ -17,7 +17,25 @@ namespace ImageSource_Memory_Leak
 			FirstPage.FullGC();
 			FirstPage.FullGC();
 		}
-	}
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            if (BindingContext is MainPageViewModel viewModel)
+            {
+                FullGC();
+                viewModel.Dispose();
+            }
+        }
+
+        public static void FullGC()
+        {
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+    }
 
 	sealed class FirstPage : ContentPage
 	{
@@ -40,8 +58,7 @@ namespace ImageSource_Memory_Leak
 
 
 
-
-		public static void FullGC()
+        public static void FullGC()
 		{
 
 			GC.Collect();
