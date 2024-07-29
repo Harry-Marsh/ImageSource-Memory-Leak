@@ -1,15 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              x:Class="ImageSource_Memory_Leak.MainPage"
+            xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              xmlns:vm="clr-namespace:ImageSource_Memory_Leak">
 
     <ContentPage.BindingContext>
         <vm:MainPageViewModel/>
     </ContentPage.BindingContext>
-    
-            
-            <Image Source="{Binding CameraImage}" Aspect="AspectFill"/>
 
+    <StackLayout>
+        <!-- Line Chart -->
+        <charts:ChartView Chart="{Binding Chart}"
+                          VerticalOptions="FillAndExpand"
+                          HorizontalOptions="FillAndExpand" />
+    </StackLayout>
 
 </ContentPage>

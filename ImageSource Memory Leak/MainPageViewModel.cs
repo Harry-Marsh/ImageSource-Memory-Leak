@@ -1,113 +1,114 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SkiaSharp;
 using System;
-using System.IO;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel;
 using Microsoft.Maui.Controls;
+using Microcharts;
 
 namespace ImageSource_Memory_Leak
 {
-    public partial class MainPageViewModel : ObservableObject, IDisposable
+    public partial class MainPageViewModel : ObservableObject
     {
-        private Timer _timer; // Timer to periodically update the image
-
-        // Observable property to hold the current image source
-        [ObservableProperty]
-        private ImageSource _cameraImage;
-
-        // Field to store the frame data byte array
-        private byte[] _frameData;
+        private readonly Random _random;
+        private readonly DateTime _startTime;
 
         public MainPageViewModel()
         {
-            // Start updating the image when the view model is instantiated
-            StartImageUpdate();
+            _random = new Random();
+            _startTime = DateTime.Now;
+
+            // Initialize the chart with some default data
+            Chart = CreateInitialChart();
+
+            // Start polling for new values
+            PollValuesAsync();
         }
 
-        private void StartImageUpdate()
+        private LineChart CreateInitialChart()
         {
-            // Initialize and start the timer to update the image 60 times per second (1000ms / 60 ≈ 16.67ms)
-            _timer = new Timer(UpdateImage, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(1000.0 / 60));
-        }
-
-        private void UpdateImage(object state)
-        {
-            // Generate random image byte array
-            byte[] imageData = ImageGenerator.GenerateRandomImage();
-
-            // Update the Image control on the main thread
-            _frameData = imageData; // Store the frame data
-
-            if (_frameData != null)
+            var entries = GenerateRandomBpmData();
+            return new LineChart
             {
-                // Create a new StreamImageSource from the frame data
-                var streamImageSource = new StreamImageSource
-                {
-                    Stream = token =>
-                    {
-                        // Create a MemoryStream from the frame data
-                        MemoryStream memoryStream = new MemoryStream(_frameData);
-                        return Task.FromResult<Stream>(memoryStream);
-                    }
-                };
+                Entries = entries,
+                LineMode = LineMode.Straight,
+                PointMode = PointMode.Circle, // Display points on the chart
+                LabelTextSize = 20, // Adjusted for better visibility
+                LineSize = 4,
+                BackgroundColor = SKColors.Transparent
+            };
+        }
 
-                // Assign the new StreamImageSource to the CameraImage property to update the UI
-                MainThread.InvokeOnMainThreadAsync(() =>
+        private List<ChartEntry> GenerateRandomBpmData()
+        {
+            var entries = new List<ChartEntry>();
+            
+                float bpm = GenerateRandomBpm(); // Generate random BPM value
+                var elapsedTime = DateTime.Now;
+                var label = elapsedTime.ToString(@"mm\:ss");
+
+                entries.Add(new ChartEntry(bpm)
                 {
-                    CameraImage = streamImageSource;
+                    Color = SKColor.Parse("#FF1493"), // DeepPink color
+                    Label = label,
+                    ValueLabel = bpm.ToString()
+                    
                 });
-            }
+
+            return entries;
         }
 
-        // Dispose method to clean up the timer when the view model is destroyed
-        public void Dispose()
+        private float GenerateRandomBpm()
         {
-            _timer?.Dispose(); // Dispose the timer to stop updates
+            return (float)_random.Next(60, 120); // Random BPM between 60 and 120
         }
-    }
 
-    
+        public LineChart Chart { get; private set; }
 
-    public class ImageGenerator
-    {
-        /// <summary>
-        /// Generates a random byte array representing a 500x500 pixel image in JPEG format.
-        /// </summary>
-        /// <returns>A byte array representing the image.</returns>
-        public static byte[] GenerateRandomImage()
+        private async Task PollValuesAsync()
         {
-            int width = 500; // Width of the image
-            int height = 500; // Height of the image
+            var entries = Chart.Entries.ToList(); // Get current entries
 
-            // Create an empty bitmap with SkiaSharp
-            using (var bitmap = new SKBitmap(width, height))
+            while (true)
             {
-                var random = new Random(); // Random number generator for pixel colors
+                await Task.Delay(1000); // Delay for 1 second
 
-                // Generate random pixels for the bitmap
-                for (int y = 0; y < height; y++)
+                try
                 {
-                    for (int x = 0; x < width; x++)
+                    // Generate new random BPM value
+                    float bpm = GenerateRandomBpm();
+                    var elapsedTime = DateTime.Now;
+                    var label = elapsedTime.ToString(@"mm\:ss");
+
+                    // Add new data point
+                    entries.Add(new ChartEntry(bpm)
                     {
-                        // Create a random color
-                        var randomColor = new SKColor(
-                            (byte)random.Next(256), // Red component (0-255)
-                            (byte)random.Next(256), // Green component (0-255)
-                            (byte)random.Next(256)  // Blue component (0-255)
-                        );
+                        Color = SKColor.Parse("#FF1493"), // DeepPink color
+                        Label = label,
+                        ValueLabel = bpm.ToString()
+                    });
 
-                        // Set the pixel color in the bitmap
-                        bitmap.SetPixel(x, y, randomColor);
-                    }
+                    // Update the chart
+                    Chart = new LineChart
+                    {
+                        Entries = entries,
+                        LineMode = LineMode.Straight,
+                        PointMode = PointMode.Circle,
+                        LabelTextSize = 20, // Adjusted for better visibility
+                        LineSize = 4,
+                        BackgroundColor = SKColors.Transparent,
+                        IsAnimated = false,
+                    };
+
+                    // Notify that the Chart property has changed
+                    OnPropertyChanged(nameof(Chart));
                 }
-
-                // Create an image from the bitmap and encode it to JPEG format
-                using (var image = SKImage.FromBitmap(bitmap))
-                using (var data = image.Encode(SKEncodedImageFormat.Jpeg, 100))
+                catch (Exception ex)
                 {
-                    // Return the encoded image as a byte array
-                    return data.ToArray();
+                    // Handle or log the exception as needed
+                    Console.WriteLine($"Error during timer event: {ex.Message}");
                 }
             }
         }
