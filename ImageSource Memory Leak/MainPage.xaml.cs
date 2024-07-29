@@ -1,12 +1,7 @@
 ﻿using Microsoft.Maui.Controls;
-using Microcharts;
-using Microcharts.Maui;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Timers;
-using Timer = System.Timers.Timer;
-using System.Diagnostics;
+using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
 
 namespace ImageSource_Memory_Leak
 {
@@ -16,23 +11,26 @@ namespace ImageSource_Memory_Leak
         {
             InitializeComponent();
 
-            var viewModel = new MainPageViewModel();
-            BindingContext = viewModel;
-
-            // Subscribe to property change notifications
-            viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            var viewModel = (MainPageViewModel)BindingContext;
+            viewModel.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(MainPageViewModel.ChartBitmap))
+                {
+                    ChartView.InvalidateSurface(); // Redraw the canvas
+                }
+            };
         }
 
-        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnCanvasViewPaintSurface(object sender, SKPaintSurfaceEventArgs e)
         {
-            if (e.PropertyName == nameof(MainPageViewModel.MyChart))
+            var viewModel = (MainPageViewModel)BindingContext;
+            if (viewModel.ChartBitmap != null)
             {
-                // Force the chart view to refresh by resetting the binding context
-                var chartView = this.FindByName<ChartView>("ChartView");
-                chartView.BindingContext = null;
-                chartView.BindingContext = BindingContext;
+                var canvas = e.Surface.Canvas;
+                canvas.Clear(SKColors.White);
+                var destRect = new SKRect(0, 0, e.Info.Width, e.Info.Height);
+                canvas.DrawBitmap(viewModel.ChartBitmap, destRect);
             }
-
         }
     }
 }

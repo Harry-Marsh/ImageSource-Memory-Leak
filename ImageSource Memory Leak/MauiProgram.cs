@@ -1,5 +1,6 @@
-﻿using Microcharts.Maui;
+﻿
 using Microsoft.Extensions.Logging;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace ImageSource_Memory_Leak
 {
@@ -18,7 +19,7 @@ namespace ImageSource_Memory_Leak
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-            builder.UseMicrocharts();
+            builder.UseSkiaSharp(); 
             return builder.Build();
         }
     }
