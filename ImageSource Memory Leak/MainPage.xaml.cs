@@ -14,7 +14,25 @@ namespace ImageSource_Memory_Leak
     {
         public MainPage()
         {
-            InitializeComponent();        
+            InitializeComponent();
+
+            var viewModel = new MainPageViewModel();
+            BindingContext = viewModel;
+
+            // Subscribe to property change notifications
+            viewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainPageViewModel.MyChart))
+            {
+                // Force the chart view to refresh by resetting the binding context
+                var chartView = this.FindByName<ChartView>("ChartView");
+                chartView.BindingContext = null;
+                chartView.BindingContext = BindingContext;
+            }
+
         }
     }
 }

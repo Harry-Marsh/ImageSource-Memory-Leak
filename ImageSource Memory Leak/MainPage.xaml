@@ -12,7 +12,8 @@
 
     <StackLayout>
         <!-- Line Chart -->
-        <charts:ChartView Chart="{Binding Chart}"
+        <charts:ChartView x:Name="ChartView"
+                          Chart="{Binding MyChart}"
                           VerticalOptions="FillAndExpand"
                           HorizontalOptions="FillAndExpand" />
     </StackLayout>
